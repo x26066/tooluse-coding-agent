@@ -1,0 +1,85 @@
+[
+  {
+    "task": "创建 notes_a.txt",
+    "category": "create"
+  },
+  {
+    "task": "在 notes_a.txt 里追加 alpha\n",
+    "category": "append"
+  },
+  {
+    "task": "读取 notes_a.txt",
+    "category": "read"
+  },
+  {
+    "task": "在 notes_a.txt 里追加 beta\n",
+    "category": "append"
+  },
+  {
+    "task": "读取 notes_a.txt",
+    "category": "read"
+  },
+
+  {
+    "task": "创建 notes_b.txt",
+    "category": "create"
+  },
+  {
+    "task": "在 notes_b.txt 里追加 hello\n",
+    "category": "append"
+  },
+  {
+    "task": "读取 notes_b.txt",
+    "category": "read"
+  },
+  {
+    "task": "在 notes_b.txt 里追加 world\n",
+    "category": "append"
+  },
+  {
+    "task": "读取 notes_b.txt",
+    "category": "read"
+  },
+
+  {
+    "task": "创建 notes_c.txt",
+    "category": "create"
+  },
+  {
+    "task": "在 notes_c.txt 里追加 line1\n",
+    "category": "append"
+  },
+  {
+    "task": "读取 notes_c.txt",
+    "category": "read"
+  },
+  {
+    "task": "在 notes_c.txt 里追加 line2\n",
+    "category": "append"
+  },
+  {
+    "task": "读取 notes_c.txt",
+    "category": "read"
+  },
+
+  {
+    "task": "把 hello.py 里的 hello error 改成 hello benchmark",
+    "category": "edit"
+  },
+  {
+    "task": "把 hello.py 里的 hello benchmark 改成 hello agent",
+    "category": "edit"
+  },
+  {
+    "task": "把 hello.py 里的 hello agent 改成 hello project",
+    "category": "edit"
+  },
+  {
+    "task": "把 hello.py 里的 hello project 改成 hello final",
+    "category": "edit"
+  },
+  {
+    "task": "读取 hello.py",
+    "category": "read"
+  }
+]

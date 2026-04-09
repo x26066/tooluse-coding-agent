@@ -1,0 +1,86 @@
+[
+  {
+    "task": "帮我看看 hello.py 现在写了什么",
+    "category": "read"
+  },
+  {
+    "task": "打开 notes_a.txt 给我读一下",
+    "category": "read"
+  },
+  {
+    "task": "能不能读取一下 notes_b.txt",
+    "category": "read"
+  },
+  {
+    "task": "我想看看 notes_c.txt 的内容",
+    "category": "read"
+  },
+
+  {
+    "task": "请新建一个 notes_d.txt",
+    "category": "create"
+  },
+  {
+    "task": "帮我创建 notes_e.txt 这个文件",
+    "category": "create"
+  },
+  {
+    "task": "建个 notes_f.txt",
+    "category": "create"
+  },
+
+  {
+    "task": "往 notes_d.txt 里面加一行 alpha",
+    "category": "append"
+  },
+  {
+    "task": "在 notes_d.txt 里补一句 beta",
+    "category": "append"
+  },
+  {
+    "task": "把 gamma 追加到 notes_e.txt",
+    "category": "append"
+  },
+  {
+    "task": "给 notes_e.txt 追加 hello world",
+    "category": "append"
+  },
+  {
+    "task": "请在 notes_f.txt 里加上 line1",
+    "category": "append"
+  },
+  {
+    "task": "把 line2 也放进 notes_f.txt",
+    "category": "append"
+  },
+
+  {
+    "task": "把 hello.py 里的 hello error 改成 hello harder",
+    "category": "edit"
+  },
+  {
+    "task": "请把 hello.py 中的 hello harder 替换成 hello benchmark",
+    "category": "edit"
+  },
+  {
+    "task": "把 hello.py 里面的 hello benchmark 改成 hello llm",
+    "category": "edit"
+  },
+  {
+    "task": "把 hello.py 中 hello llm 换成 hello natural",
+    "category": "edit"
+  },
+
+  {
+    "task": "读取一下 notes_d.txt",
+    "category": "read"
+  },
+  {
+    "task": "帮我看看 notes_e.txt 现在内容是什么",
+    "category": "read"
+  },
+  {
+    "task": "打开 hello.py 看一下现在打印什么",
+    "category": "read"
+  }
+]

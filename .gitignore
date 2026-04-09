@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Conda
+.conda/
+conda-meta/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables / secrets
+.env
+.env.*
+*.env
+
+# Logs
+logs/
+*.log
+
+# Local outputs
+outputs/tmp/
+outputs/cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Test / coverage
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Local benchmark temp files
+notes_a.txt
+notes_b.txt
+notes_c.txt
+notes_d.txt
+notes_e.txt
+notes_f.txt
+notes_llm.txt
+
+# Keep benchmark results if you want to show project evidence
+# If you do NOT want them tracked, uncomment below:
+# outputs/benchmarks/
+
+# Keep docs and benchmark task files
+# docs/
+# data/benchmark/
