@@ -26,6 +26,12 @@ def main():
     print(f"action_type: {result.get('action_type')}")
     print(f"target_file: {result.get('target_file')}")
     print(f"selected_file: {result.get('selected_file')}")
+    print(f"retry_count: {result.get('retry_count')}")
+    print(f"reflection: {result.get('reflection')}")
+    print(f"retry_from_task: {result.get('retry_from_task')}")
+    print(f"retry_task: {result.get('retry_task')}")
+    print(f"failure_reason: {result.get('failure_reason')}")
+    print(f"latency_ms: {result.get('latency_ms')}")
     print(f"日志路径: {log_path}")
 
     if result.get("error"):

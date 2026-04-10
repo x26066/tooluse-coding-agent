@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from typing import Dict
 
@@ -8,14 +9,22 @@ from tools.test_runner import run_python_file
 from trajectory import TrajectoryRecorder
 from selector import select_action
 from llm_selector import llm_select_action
+from retry_manager import should_retry, build_reflection, normalize_retry_task
 
 
-def run_minimal_agent(
+def _run_once(
     task: str,
     repo_root: Path,
     selector_mode: str = "rule",
 ) -> Dict:
+    start_time = time.perf_counter()
     recorder = TrajectoryRecorder(task=task)
+
+    def finalize(final_status: str, extra: Dict) -> Dict:
+        latency_ms = round((time.perf_counter() - start_time) * 1000, 4)
+        result = recorder.build(final_status=final_status, extra=extra)
+        result["latency_ms"] = latency_ms
+        return result
 
     if selector_mode == "llm":
         decision = llm_select_action(task)
@@ -31,7 +40,7 @@ def run_minimal_agent(
     )
 
     if not decision.get("ok"):
-        return recorder.build(
+        return finalize(
             final_status="parse_failed",
             extra={
                 "selector_mode": selector_mode,
@@ -65,7 +74,7 @@ def run_minimal_agent(
         )
 
         if not search_results:
-            return recorder.build(
+            return finalize(
                 final_status="no_file_found",
                 extra={
                     "selector_mode": selector_mode,
@@ -156,8 +165,38 @@ def run_minimal_agent(
             append_result,
         )
 
-    return recorder.build(
-        final_status="success",
+    # 判断当前动作是否真正成功
+    task_success = True
+    failure_reason = None
+
+    if action_type == "read":
+        task_success = bool(file_read_result and file_read_result.get("ok"))
+        if not task_success:
+            failure_reason = "file_read_failed"
+
+    elif action_type == "create":
+        task_success = bool(create_result and create_result.get("ok"))
+        if not task_success:
+            failure_reason = "create_failed"
+
+    elif action_type == "append":
+        task_success = bool(append_result and append_result.get("ok"))
+        if not task_success:
+            failure_reason = "append_failed"
+
+    elif action_type == "edit":
+        task_success = bool(edit_result and edit_result.get("ok"))
+        if not task_success:
+            failure_reason = "edit_failed"
+        elif test_result is not None and not test_result.get("ok"):
+            task_success = False
+            failure_reason = "run_check_failed"
+
+    final_status = "success" if task_success else "tool_failed"
+    status = "success" if task_success else "failed"
+
+    return finalize(
+        final_status=final_status,
         extra={
             "selector_mode": selector_mode,
             "action_type": action_type,
@@ -169,6 +208,46 @@ def run_minimal_agent(
             "create_result": create_result,
             "append_result": append_result,
             "test_result": test_result,
-            "status": "success",
+            "status": status,
+            "failure_reason": failure_reason,
         },
     )
+
+
+def run_minimal_agent(
+    task: str,
+    repo_root: Path,
+    selector_mode: str = "rule",
+    max_retry: int = 1,
+) -> Dict:
+    total_start = time.perf_counter()
+
+    first_result = _run_once(
+        task=task,
+        repo_root=repo_root,
+        selector_mode=selector_mode,
+    )
+
+    first_result["retry_count"] = 0
+    first_result["reflection"] = None
+
+    if max_retry <= 0 or not should_retry(first_result):
+        first_result["latency_ms"] = round((time.perf_counter() - total_start) * 1000, 4)
+        return first_result
+
+    reflection = build_reflection(first_result)
+    retry_task = normalize_retry_task(task, reflection)
+
+    second_result = _run_once(
+        task=retry_task,
+        repo_root=repo_root,
+        selector_mode=selector_mode,
+    )
+
+    second_result["retry_count"] = 1
+    second_result["reflection"] = reflection
+    second_result["retry_from_task"] = task
+    second_result["retry_task"] = retry_task
+    second_result["latency_ms"] = round((time.perf_counter() - total_start) * 1000, 4)
+
+    return second_result

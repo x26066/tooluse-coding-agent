@@ -1,45 +1,32 @@
 # Tool-Use File Agent: Rule vs LLM Selector Benchmark
+A lightweight agent prototype for file-operation tasks. It supports `read`, `create`, `append`, `edit`, and `run`, and is built to be **executable, measurable, and comparable** rather than just demonstrative.
 
-A lightweight tool-use agent prototype for file-operation tasks, supporting `read / create / append / edit / run`, with structured trajectory logging, batch benchmark evaluation, and error analysis.
-
-This project focuses on building an **executable, measurable, and comparable** agent system, and compares:
+The project compares two decision strategies under the same execution pipeline:
 
 - a **rule-based selector**
 - an **LLM-based selector**
 
-## Core Result
+## What this repository is for
 
-### Template Benchmark
-- `rule_v1`: **100%**
+This repository is designed to answer one practical question:
 
-### Harder Benchmark
-- `rule_v1_harder`: **15%**
-- `llm_v2_prompt_tuned_harder`: **80%**
-- `llm_v3_create_fixed_harder`: **100%**
+> When file-operation tasks move from fixed templates to natural-language phrasing, how much does the **decision layer** matter?
 
-## Key Takeaway
+The implementation therefore emphasizes:
 
-- Rule-based parsing is stable on fixed templates.
-- Rule-based parsing collapses on natural-language variants.
-- LLM-based selection generalizes much better on harder tasks.
-- Prompt constraints, few-shot examples, argument cleaning, and create-task fallback improved the harder benchmark from **80%** to **100%**.
+- executable tool calls rather than mock outputs
+- structured trajectories rather than opaque runs
+- benchmark summaries rather than anecdotal examples
+- observable failures rather than silent misclassification
 
-## What This Repo Includes
+## Snapshot
 
-- Tool execution layer:
-  - `repo_search`
-  - `file_reader`
-  - `create_file`
-  - `append_to_file`
-  - `replace_in_file`
-  - `run_python_file`
-- Decision layer:
-  - rule-based selector
-  - llm-based selector
-- Structured trajectory logging
-- Benchmark runner and error analysis
+On fixed templates, the rule-based selector is fully stable.  
+On harder natural-language variants, performance improves from **15%** with `rule_v1_harder` to **100%** with `llm_v3_create_fixed_harder` after prompt refinement, argument cleaning, create-task fallback handling, and minimal retry / reflection support.
 
-## Project Structure
+Detailed benchmark design, per-version results, error analysis, and iteration notes are in [`docs/experiments.md`](docs/experiments.md).
+
+## Repository Layout
 
 ```text
 tooluse-coding-agent/
@@ -57,7 +44,14 @@ tooluse-coding-agent/
 │   ├── benchmark_runner.py
 │   ├── benchmark_setup.py
 │   ├── error_analyzer.py
+│   ├── metrics.py
+│   ├── retry_manager.py
 │   └── tools/
+│       ├── __init__.py
+│       ├── repo_search.py
+│       ├── file_reader.py
+│       ├── file_editor.py
+│       └── test_runner.py
 ├── data/
 │   └── benchmark/
 │       ├── tasks.json
@@ -69,7 +63,20 @@ tooluse-coding-agent/
     └── benchmarks/
 ```
 
-## How to Run
+## Main files to look at first
+
+- **`src/selector.py`**: deterministic rule-based task parsing baseline
+- **`src/llm_selector.py`**: natural-language to structured decision JSON
+- **`src/agent_runner.py`**: end-to-end execution pipeline
+- **`src/trajectory.py`**: step-level logging of tool calls
+- **`src/benchmark_runner.py`**: batch evaluation entrypoint
+- **`src/error_analyzer.py`**: failed-step attribution and summary
+- **`src/metrics.py`**: benchmark-level metrics aggregation
+- **`src/retry_manager.py`**: minimal retry / reflection handling
+
+---
+
+## Quick Start
 
 ### 1. Install dependencies
 
@@ -78,87 +85,61 @@ pip install -U pip setuptools wheel
 pip install litellm python-dotenv pyyaml rich
 ```
 
-If you want to use the LLM-based selector, configure `.env` like this:
+### 2. Configure the LLM selector
+
+If you want to run the LLM-based selector, create a `.env` file in the root directory:
 
 ```env
 DASHSCOPE_API_KEY="your_key_here"
 LLM_MODEL="openai/qwen-plus"
-LLM_API_BASE="https://dashscope.aliyuncs.com/compatible-mode/v1"
+LLM_API_BASE="[https://dashscope.aliyuncs.com/compatible-mode/v1](https://dashscope.aliyuncs.com/compatible-mode/v1)"
 ```
 
-### 2. Reset benchmark environment
+### 3. Reset the benchmark workspace
+
+Because `create` and `edit` tasks are stateful, reset the environment before each benchmark run:
 
 ```bash
 python src/benchmark_setup.py
 ```
 
-### 3. Run single-task debugging
+### 4. Debug a single task
 
 ```bash
 python src/main.py
 ```
 
-Typical tasks include:
-- 读取 `hello.py`
-- 创建 `notes_llm.txt`
-- 在 `notes_llm.txt` 里追加 `hello llm`
-- 把 `hello.py` 里的 `hello error` 改成 `hello benchmark`
+*Typical examples you can test:*
+- `读取 hello.py`
+- `创建 notes_llm.txt`
+- `在 notes_llm.txt 里追加 hello llm`
+- `把 hello.py 里的 hello error 改成 hello benchmark`
 
-### 4. Run benchmark evaluation
+### 5. Run the batch benchmark
 
 ```bash
 python src/benchmark_runner.py
 ```
-
-Before running, set in `benchmark_runner.py`:
+**Configuration:**
+Before running, set these variables inside `src/benchmark_runner.py`:
 - `selector_mode = "rule"` or `selector_mode = "llm"`
 - benchmark file: `data/benchmark/tasks.json` or `data/benchmark/tasks_harder.json`
 
-**Recommended order:**
+**Recommended execution order:**
 1. Reset environment
-2. Run rule
-3. Reset environment again
-4. Run llm
+2. Run rule benchmark
+3. Reset again
+4. Run llm benchmark
 
-### 5. Check outputs
+### 6. Inspect outputs
 
-Results are saved to:
+Generated artifacts are written to:
 - `logs/`
 - `outputs/benchmarks/`
 
----
-
-## Benchmark Summary
-
-**Template Benchmark**
-- `rule_v1`: 100%
-
-**Harder Benchmark**
-- `rule_v1_harder`: 15%
-- `llm_v2_prompt_tuned_harder`: 80%
-- `llm_v3_create_fixed_harder`: 100%
+Common output files include summary JSON files such as `rule_v1_summary.json` and `rule_v1_harder_summary.json`.
 
 ---
-
-## Current Limitations
-
-- Benchmark size is still small.
-- Tasks are still relatively shallow.
-- Workflows are mostly short and lightly chained.
-- Selector SFT has not been tested yet.
-- This project is still a lightweight prototype, not a production agent framework.
-
----
-
-## Next Steps
-
-- [ ] Expand the harder benchmark with more natural-language diversity.
-- [ ] Introduce longer multi-step tasks.
-- [ ] Collect selector trajectories for SFT dataset construction.
-- [ ] Compare rule-based, prompt-tuned, and SFT-based selectors.
-
----
-
-## More Details
-
-For full experiment details, see [`docs/experiments.md`](docs/experiments.md).
+## Reading Guide
+- Read **this file (`README.md`)** for what the project is, how it is organized, and how to run it.
+- Read **[`docs/experiments.md`](docs/experiments.md)** for benchmark setup, version-by-version results, failure patterns, retry/reflection notes, and conclusions.

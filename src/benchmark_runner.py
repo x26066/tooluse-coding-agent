@@ -7,6 +7,7 @@ from agent_runner import run_minimal_agent
 from logger_utils import save_log, save_named_json
 from config import PROJECT_ROOT, LOG_DIR
 from error_analyzer import build_error_summary
+from metrics import extract_task_metrics, build_metrics_summary
 
 
 def load_tasks(task_file: Path) -> List[Dict]:
@@ -70,7 +71,10 @@ def build_category_summary(results: List[Dict]) -> Dict:
     return summary
 
 
-def run_benchmark(task_file: Path, selector_mode: str = "rule") -> Dict:
+def run_benchmark(
+    task_file: Path,
+    selector_mode: str = "rule",
+) -> Dict:
     repo_root = PROJECT_ROOT
     tasks = load_tasks(task_file)
 
@@ -92,15 +96,21 @@ def run_benchmark(task_file: Path, selector_mode: str = "rule") -> Dict:
         result["benchmark_success"] = success
         result["category"] = category
 
+        # 新增：提取单任务指标
+        result["metrics"] = extract_task_metrics(result)
+
         results.append(result)
 
         if success:
             success_count += 1
 
-        print(f"[{idx}/{len(tasks)}] ({category}) {task} -> {'PASS' if success else 'FAIL'}")
+        print(
+            f"[{idx}/{len(tasks)}] ({category}) {task} -> {'PASS' if success else 'FAIL'}"
+        )
 
     error_summary = build_error_summary(results)
     category_summary = build_category_summary(results)
+    metrics_summary = build_metrics_summary(results)
 
     summary = {
         "selector_mode": selector_mode,
@@ -109,6 +119,7 @@ def run_benchmark(task_file: Path, selector_mode: str = "rule") -> Dict:
         "success_count": success_count,
         "success_rate": round(success_count / len(tasks), 4) if tasks else 0.0,
         "category_summary": category_summary,
+        "metrics_summary": metrics_summary,
         "error_summary": error_summary,
         "results": results,
     }
@@ -117,8 +128,8 @@ def run_benchmark(task_file: Path, selector_mode: str = "rule") -> Dict:
 
 
 def main():
-    selector_mode = "llm"   # 改成 "rule" 或 "llm"
-    run_name = "llm_v3_create_fixed_harder"
+    selector_mode = "llm"  # 改成 "rule" 或 "llm"
+    run_name = "llm_v3_create_fixed_harder"  # 按当前实验名改
     task_file = PROJECT_ROOT / "data" / "benchmark" / "tasks_harder.json"
 
     summary = run_benchmark(task_file, selector_mode=selector_mode)
@@ -142,8 +153,15 @@ def main():
             f"success_rate={info['success_rate']:.2%}"
         )
 
-    error_summary = summary["error_summary"]
+    print("\n=== Metrics Summary ===")
+    metrics_summary = summary["metrics_summary"]
+    print(f"平均步骤数: {metrics_summary['average_step_count']}")
+    print(f"平均 LLM 调用次数: {metrics_summary['average_llm_call_count']}")
+    print(f"平均重试次数: {metrics_summary['average_retry_count']}")
+    print(f"平均耗时(ms): {metrics_summary['average_latency_ms']}")
+
     print("\n=== Error Summary ===")
+    error_summary = summary["error_summary"]
     print(f"失败任务数: {error_summary['failed_count']}")
     print(f"失败动作分布: {error_summary['failed_action_distribution']}")
     print(f"失败步骤分布: {error_summary['failed_step_distribution']}")

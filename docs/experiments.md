@@ -1,157 +1,116 @@
 # Experiments
 
-For project overview, repository structure, and usage instructions, see [README.md](../README.md).
+This document covers only the experimental side of the project. For repository layout, setup steps, and run commands, see [README.md](../README.md).
 
-## Project Goal
+## Evaluation questions
 
-The goal of this project is to build a lightweight tool-use file agent with:
+The experiments are organized around three questions:
 
-- a decision layer
-- a tool execution layer
-- structured trajectory logging
-- benchmark evaluation
-- error analysis
+1. How far can a rule-based selector go when task phrasing is templated?
+2. What happens when the same task types are expressed in more natural language?
+3. How much engineering value comes from prompt constraints, output cleaning, fallback handling, and minimal retry / reflection support?
 
-The project compares two decision strategies:
+## Protocol
 
-1. **rule-based selector**
-2. **llm-based selector**
+### Controlled comparison
 
-The execution layer is kept unchanged across experiments so that performance differences mainly reflect the quality of the decision layer.
+All selector variants are evaluated under the same execution pipeline. The experiments are intended to isolate the **decision layer**, so differences in outcome are interpreted primarily as differences in task understanding and structured argument extraction.
 
----
-
-## System Overview
-
-### Tool Layer
-
-The current agent supports the following tools:
-
-- `repo_search`
-- `file_reader`
-- `create_file`
-- `append_to_file`
-- `replace_in_file`
-- `run_python_file`
-
-### Decision Layer
-
-Two decision modes are implemented:
-
-- `rule_v1`: parse tasks using rule-based logic
-- `llm_v*`: parse tasks using an LLM and output structured JSON decisions
-
-### Trajectory Logging
-
-Each run is recorded as a structured trajectory containing:
-
-- `tool`
-- `input`
-- `output`
-
-This makes it possible to inspect decision quality, execution behavior, and failure locations.
-
----
-
-## Benchmark Design
+### Benchmark sets
 
 Two benchmark sets are used.
 
-### 1. Template Benchmark
+#### Template benchmark
 
-This benchmark contains highly regular task templates such as:
+This set contains highly regular instructions such as:
 
 - `读取 hello.py`
 - `创建 notes_a.txt`
 - `在 notes_a.txt 里追加 alpha`
 - `把 hello.py 里的 hello benchmark 改成 hello agent`
 
-This benchmark mainly measures correctness on structured and predictable commands.
+It measures correctness on explicit and predictable task phrasing.
 
-### 2. Harder Benchmark
+#### Harder benchmark
 
-This benchmark contains more natural-language task formulations such as:
+This set contains more natural-language formulations such as:
 
 - `帮我看看 hello.py 现在写了什么`
 - `请新建一个 notes_d.txt`
 - `把 gamma 追加到 notes_e.txt`
 - `请把 hello.py 中的 hello harder 替换成 hello benchmark`
 
-This benchmark is designed to measure generalization beyond hand-written rule patterns.
+It is meant to test generalization beyond hand-written rule patterns.
 
----
+### Metrics tracked
 
-## Metrics
-
-The following metrics are used:
+Each benchmark reports:
 
 - overall success rate
 - category success rate
 - failed action distribution
 - failed step distribution
+- average step count
+- average LLM call count
+- average retry count
+- average latency
 
-Task categories:
+Task categories are:
 
 - `read`
 - `create`
 - `append`
 - `edit`
 
----
+### Execution notes
 
-## Baseline: `rule_v1`
+Benchmark runs should be performed on a reset workspace. This matters because create and edit tasks modify local state and can otherwise contaminate later runs.
 
-### Version
+## Results by selector version
 
-- name: `rule_v1`
-- selector: rule-based
-- execution layer: unchanged
+### `rule_v1`
 
-### Template Benchmark Result
+**Role in the study:** deterministic baseline on templated instructions.
 
-- total tasks: 20
-- overall success rate: **100.00%**
+**Benchmark:** template benchmark  
+**Total tasks:** 20  
+**Overall success rate:** **100.00%**
 
-### Category Success
+**Category breakdown**
 
 - create: 3 / 3 = **100.00%**
 - append: 6 / 6 = **100.00%**
 - read: 7 / 7 = **100.00%**
 - edit: 4 / 4 = **100.00%**
 
-### Error Summary
+**Failure summary**
 
 - failed_count: 0
 - failed_action_distribution: {}
 - failed_step_distribution: {}
 
-### Interpretation
+**Interpretation**
 
-The rule-based selector is fully stable on templated tasks where task patterns are fixed and explicitly covered by the parser.
+When task phrasing is fixed and explicitly covered by parsing rules, a rule-based selector is fully reliable and provides a strong deterministic baseline.
 
 ---
 
-## Harder Benchmark: `rule_v1_harder`
+### `rule_v1_harder`
 
-### Version
+**Role in the study:** stress test of the same rule logic under natural-language variation.
 
-- name: `rule_v1_harder`
-- selector: rule-based
-- execution layer: unchanged
+**Benchmark:** harder benchmark  
+**Total tasks:** 20  
+**Overall success rate:** **15.00%**
 
-### Harder Benchmark Result
-
-- total tasks: 20
-- overall success rate: **15.00%**
-
-### Category Success
+**Category breakdown**
 
 - read: 2 / 7 = **28.57%**
 - create: 0 / 3 = **0.00%**
 - append: 0 / 6 = **0.00%**
 - edit: 1 / 4 = **25.00%**
 
-### Error Summary
+**Failure summary**
 
 - failed_count: 17
 - failed_action_distribution:
@@ -159,56 +118,46 @@ The rule-based selector is fully stable on templated tasks where task patterns a
 - failed_step_distribution:
   - `tool_selector`: 17
 
-### Interpretation
+**Interpretation**
 
-The rule-based selector collapses on natural-language task variants.
-
-The main bottleneck is not tool execution, but task parsing itself: the selector fails before tool usage begins.
-
-This result shows that hand-written rules are highly sensitive to expression style.
+The failure is concentrated before tool execution even begins. The bottleneck is task parsing, not file manipulation. This makes the harder benchmark a useful probe for selector robustness rather than tool quality.
 
 ---
 
-## LLM Selector: `llm_v1`
+### `llm_v1`
 
-### Version
+**Role in the study:** first functional proof that structured decision extraction with an LLM is workable.
 
-- name: `llm_v1`
-- selector: llm-based
-- execution layer: unchanged
+**Observation**
 
-### Notes
+This version showed that converting natural-language requests into structured JSON decisions was feasible, but argument extraction was not yet stable enough for a strong benchmark result.
 
-The first LLM version demonstrated that structured decision extraction was feasible, but stability on argument extraction was not yet sufficient.
-
-This version was mainly used as a functional prototype before prompt refinement.
+Its main value was to establish the direction for later prompt refinement rather than to serve as the final comparison point.
 
 ---
 
-## LLM Selector: `llm_v2_prompt_tuned_harder`
+### `llm_v2_prompt_tuned_harder`
 
-### Version
+**Role in the study:** prompt-tuned LLM selector with stricter output expectations.
 
-- name: `llm_v2_prompt_tuned_harder`
-- selector: llm-based
-- improvements:
-  - stricter system prompt
-  - few-shot examples
-  - argument cleaning and validation
+**Key changes**
 
-### Harder Benchmark Result
+- stricter system prompt
+- few-shot examples
+- argument cleaning and validation
 
-- total tasks: 20
-- overall success rate: **80.00%**
+**Benchmark:** harder benchmark  
+**Total tasks:** 20  
+**Overall success rate:** **80.00%**
 
-### Category Success
+**Category breakdown**
 
 - read: 7 / 7 = **100.00%**
 - create: 0 / 3 = **0.00%**
 - append: 5 / 6 = **83.33%**
 - edit: 4 / 4 = **100.00%**
 
-### Error Summary
+**Failure summary**
 
 - failed_count: 4
 - failed_action_distribution:
@@ -218,162 +167,141 @@ This version was mainly used as a functional prototype before prompt refinement.
   - `create_file`: 3
   - `tool_selector`: 1
 
-### Interpretation
+**Interpretation**
 
-Compared with `rule_v1_harder`, the LLM selector shows significantly stronger generalization on natural-language task formulations.
-
-The remaining bottleneck is concentrated in `create` tasks, indicating that the main issue is structured argument extraction and file-name normalization rather than overall task understanding.
+This version already generalizes much better than the rule-based baseline on harder phrasing. The remaining weakness is concentrated in create tasks, which points to filename extraction and normalization issues rather than a broad failure of semantic understanding.
 
 ---
 
-## LLM Selector: `llm_v3_create_fixed_harder`
+### `llm_v3_create_fixed_harder`
 
-### Version
+**Role in the study:** tightened LLM selector after targeting the create-task bottleneck.
 
-- name: `llm_v3_create_fixed_harder`
-- selector: llm-based
-- improvements:
-  - more create-task few-shot examples
-  - stronger target-file cleaning
-  - create-task fallback parsing
-  - benchmark environment reset for fair evaluation
+**Key changes**
 
-### Harder Benchmark Result
+- more create-task few-shot examples
+- stronger target-file cleaning
+- create-task fallback parsing
+- fair benchmark reset before comparison
 
-- total tasks: 20
-- overall success rate: **100.00%**
+**Benchmark:** harder benchmark  
+**Total tasks:** 20  
+**Overall success rate:** **100.00%**
 
-### Category Success
+**Category breakdown**
 
 - read: 7 / 7 = **100.00%**
 - create: 3 / 3 = **100.00%**
 - append: 6 / 6 = **100.00%**
 - edit: 4 / 4 = **100.00%**
 
-### Error Summary
+**Failure summary**
 
 - failed_count: 0
 - failed_action_distribution: {}
 - failed_step_distribution: {}
 
-### Interpretation
+**Interpretation**
 
-After prompt refinement, few-shot strengthening, argument cleaning, create-specific fallback handling, and proper benchmark reset, the LLM selector reaches full success on the harder benchmark.
+The harder-benchmark failures were not evidence that the LLM could not understand the tasks. They were mostly a structured extraction and normalization problem. Once those constraints were tightened, the selector reached full success on the benchmark.
 
-This suggests that the harder benchmark failures were not due to a fundamental inability of the LLM to understand the tasks, but rather due to insufficiently constrained structured extraction.
+## Retry / reflection mechanism
 
----
+A lightweight retry-and-reflection mechanism was added to improve execution observability and make failures easier to diagnose.
 
-## Comparison Summary
+### Design choices
 
-### Template Benchmark
+The mechanism is intentionally minimal:
 
-- `rule_v1`: **100.00%**
-- `llm-based selector`: can also achieve stable performance on templated tasks
+- at most one retry per task
+- failed tasks remain failed unless a retry really resolves them
+- failure metadata is recorded explicitly
 
-### Harder Benchmark
+Tracked fields include:
 
-- `rule_v1_harder`: **15.00%**
-- `llm_v2_prompt_tuned_harder`: **80.00%**
-- `llm_v3_create_fixed_harder`: **100.00%**
+- `retry_count`
+- `reflection`
+- `failure_reason`
+- `latency_ms`
 
-### Key Observation
+### Example reflection
 
-On templated tasks, rule-based and LLM-based selectors can both perform well.
+```json
+{
+  "failed_step": "replace_in_file",
+  "reason": "未找到要替换的目标文本",
+  "suggestion": "re-read file content before retrying edit"
+}
+```
 
-On natural-language task variants, the rule-based selector fails at the parsing stage, while the LLM-based selector preserves strong generalization.
+### Why this matters
 
-### Main Conclusion
+This is not a full Reflexion-style framework, but it is enough to support:
 
-The core value of the LLM selector is not improving tool execution, but improving robustness and generalization of the decision layer under natural-language task formulations.
+- failure detection
+- retry triggering
+- reflection logging
+- retry-aware benchmark reporting
 
----
+That moves the project from a simple tool demo toward a more engineering-oriented agent benchmark.
 
-## Error Analysis Summary
+## Error patterns observed during iteration
 
-The main failure modes observed during development were:
+### Rule-based selector
 
-### Rule-Based Selector
-
+Primary failure modes:
 - unsupported task phrasing
 - parser mismatch under natural-language variation
 - failure before tool execution
 
-### LLM-Based Selector
+### LLM-based selector
 
-- unstable `target_file` extraction in create tasks
-- unstable `old_text / new_text` extraction in some edit cases
+Primary failure modes before stabilization:
+- unstable target file extraction in create tasks
+- occasional instability in old_text / new_text extraction for edit tasks
 - formatting and argument normalization issues
 
-These failures were progressively reduced through:
+### What reduced these failures
 
+The largest gains came from:
 - stricter prompts
 - few-shot examples
 - post-processing and validation
 - create-specific fallback logic
-- benchmark environment reset
+- disciplined benchmark resets for fair comparison
 
----
+## Why SFT was not prioritized yet
 
-## Why SFT Was Not Applied Yet
+Selector SFT was not the immediate next step because:
+- the benchmark is still small
+- prompt tuning plus validation already addressed the main bottlenecks
+- the best current variant already reaches 100% on the harder benchmark
 
-SFT was not prioritized at the current stage for the following reasons:
+At this stage, expanding task diversity and collecting more trajectories would likely produce more informative next experiments than fine-tuning immediately.
 
-1. the benchmark scale is still relatively small
-2. prompt tuning and output validation already resolved the main bottlenecks
-3. on the current benchmark, `llm_v3_create_fixed_harder` already achieves 100%
+## Limits of the current study
 
-Given the current results, further work would benefit more from:
-
-- expanding benchmark diversity
-- increasing task complexity
-- collecting more trajectory data
-
-before introducing selector SFT.
-
----
-
-## Current Limitations
-
-- benchmark size is still small
+- benchmark size remains small
 - current tasks are file-operation oriented and relatively shallow
-- execution workflows are short and mostly single-step or lightly chained
-- selector SFT has not yet been tested
-- current project is still a lightweight prototype, not a production agent framework
+- workflows are short and only lightly chained
+- retry / reflection is still minimal rather than a full agentic self-correction framework
+- selector SFT has not been tested
+- the project is still a prototype, not a production framework
 
----
+## Practical takeaway
 
-## Next Steps
+The main contribution of the LLM selector is not better file editing by itself. The core gain is a more robust decision layer under natural-language task formulations.
 
-Possible next steps include:
+In this project:
+- rule-based parsing is excellent on fixed templates but brittle under phrasing variation
+- LLM-based selection preserves much stronger generalization on the harder set
+- careful prompting, validation, fallback handling, and lightweight retry/reflection can substantially improve reliability without immediately requiring SFT
 
-1. expand the harder benchmark with more natural-language diversity
-2. introduce longer multi-step tasks
-3. collect selector trajectories for SFT dataset construction
-4. compare:
-   - rule-based selector
-   - prompt-tuned LLM selector
-   - SFT-based selector
-5. add richer benchmarking dimensions such as:
-   - trajectory length
-   - argument extraction accuracy
-   - robustness to paraphrasing
+## Next directions
 
----
-
-## Final Takeaway
-
-This project demonstrates a full experimental loop for a lightweight tool-use agent:
-
-- baseline construction
-- structured trajectory logging
-- batch benchmark evaluation
-- error attribution
-- rule vs LLM comparison
-- iterative selector optimization
-
-The final result shows that:
-
-- rule-based parsing is strong on fixed templates but brittle under natural-language variation
-- LLM-based decision layers provide much better generalization
-- careful prompt design, few-shot examples, validation, and post-processing can substantially improve selector reliability without immediately requiring SFT
+The most useful follow-up work is:
+- expand the harder benchmark with more paraphrase diversity
+- introduce longer multi-step tasks
+- collect selector trajectories for future SFT data construction
+- compare rule-based, prompt-tuned, and SFT-based selectors on a broader benchmark
+- add richer evaluation dimensions such as argument extraction accuracy and paraphrase robustness
