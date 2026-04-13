@@ -1,5 +1,7 @@
+import argparse
 import json
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
@@ -8,6 +10,7 @@ from logger_utils import save_log, save_named_json
 from config import PROJECT_ROOT, LOG_DIR
 from error_analyzer import build_error_summary
 from metrics import extract_task_metrics, build_metrics_summary
+from benchmark_setup import reset_temp_files, reset_hello_py
 
 
 def load_tasks(task_file: Path) -> List[Dict]:
@@ -40,7 +43,6 @@ def is_task_success(result: Dict) -> bool:
         edit_result = result.get("edit_result")
         if not (edit_result and edit_result.get("ok")):
             return False
-
         test_result = result.get("test_result")
         if test_result is None:
             return True
@@ -71,10 +73,7 @@ def build_category_summary(results: List[Dict]) -> Dict:
     return summary
 
 
-def run_benchmark(
-    task_file: Path,
-    selector_mode: str = "rule",
-) -> Dict:
+def run_benchmark(task_file: Path, selector_mode: str = "rule") -> Dict:
     repo_root = PROJECT_ROOT
     tasks = load_tasks(task_file)
 
@@ -95,8 +94,6 @@ def run_benchmark(
         result["benchmark_index"] = idx
         result["benchmark_success"] = success
         result["category"] = category
-
-        # 新增：提取单任务指标
         result["metrics"] = extract_task_metrics(result)
 
         results.append(result)
@@ -104,15 +101,13 @@ def run_benchmark(
         if success:
             success_count += 1
 
-        print(
-            f"[{idx}/{len(tasks)}] ({category}) {task} -> {'PASS' if success else 'FAIL'}"
-        )
+        print(f"[{idx}/{len(tasks)}] ({category}) {task} -> {'PASS' if success else 'FAIL'}")
 
     error_summary = build_error_summary(results)
     category_summary = build_category_summary(results)
     metrics_summary = build_metrics_summary(results)
 
-    summary = {
+    return {
         "selector_mode": selector_mode,
         "task_file": str(task_file),
         "total_tasks": len(tasks),
@@ -124,20 +119,63 @@ def run_benchmark(
         "results": results,
     }
 
-    return summary
+
+def build_default_run_name(selector_mode: str, task_file: Path) -> str:
+    stamp = datetime.now().strftime("%Y%m%d")
+    return f"{selector_mode}_{task_file.stem}_{stamp}"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run benchmark for the tool-use file agent.")
+    parser.add_argument(
+        "--selector-mode",
+        choices=["rule", "llm"],
+        required=True,
+        help="Decision layer to use."
+    )
+    parser.add_argument(
+        "--task-file",
+        required=True,
+        help="Path to the benchmark task file."
+    )
+    parser.add_argument(
+        "--run-name",
+        default=None,
+        help="Optional name for saved summary output."
+    )
+    parser.add_argument(
+        "--reset-before-run",
+        action="store_true",
+        help="Reset benchmark environment before running."
+    )
+    parser.add_argument(
+        "--save-summary",
+        action="store_true",
+        help="Save summary JSON to outputs/benchmarks/."
+    )
+    return parser.parse_args()
 
 
 def main():
-    selector_mode = "llm"  # 改成 "rule" 或 "llm"
-    run_name = "llm_v3_create_fixed_holdout"  # 按当前实验名改
-    task_file = PROJECT_ROOT / "data" / "benchmark" / "tasks_holdout.json"
+    args = parse_args()
+
+    task_file = PROJECT_ROOT / args.task_file
+    selector_mode = args.selector_mode
+    run_name = args.run_name or build_default_run_name(selector_mode, task_file)
+
+    if args.reset_before_run:
+        reset_temp_files()
+        reset_hello_py()
+        print("benchmark 环境已重置")
 
     summary = run_benchmark(task_file, selector_mode=selector_mode)
 
     log_path = save_log(LOG_DIR, summary)
 
-    output_path = PROJECT_ROOT / "outputs" / "benchmarks" / f"{run_name}_summary.json"
-    save_named_json(output_path, summary)
+    output_path = None
+    if args.save_summary:
+        output_path = PROJECT_ROOT / "outputs" / "benchmarks" / f"{run_name}_summary.json"
+        save_named_json(output_path, summary)
 
     print("\n=== Benchmark Summary ===")
     print(f"selector_mode: {summary['selector_mode']}")
@@ -167,7 +205,8 @@ def main():
     print(f"失败步骤分布: {error_summary['failed_step_distribution']}")
 
     print(f"\n日志路径: {log_path}")
-    print(f"冻结结果路径: {output_path}")
+    if output_path is not None:
+        print(f"冻结结果路径: {output_path}")
 
 
 if __name__ == "__main__":

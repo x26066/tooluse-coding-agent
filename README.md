@@ -1,145 +1,182 @@
-# Tool-Use File Agent: Rule vs LLM Selector Benchmark
-A lightweight agent prototype for file-operation tasks. It supports `read`, `create`, `append`, `edit`, and `run`, and is built to be **executable, measurable, and comparable** rather than just demonstrative.
+# Tool-Use Coding Agent Benchmark
 
-The project compares two decision strategies under the same execution pipeline:
+A lightweight tool-use coding agent for file operation tasks, with rule-based vs LLM-based selector benchmarking.
 
-- a **rule-based selector**
-- an **LLM-based selector**
+## What this project does
 
-## What this repository is for
+This project focuses on a narrow but practical agent setting:
 
-This repository is designed to answer one practical question:
+- read a file
+- create a file
+- append to a file
+- edit a file
 
-> When file-operation tasks move from fixed templates to natural-language phrasing, how much does the **decision layer** matter?
+The goal is not to build a full autonomous software engineer.  
+The goal is to compare how different decision layers behave under the same executable tool pipeline.
 
-The implementation therefore emphasizes:
+## Pipeline
 
-- executable tool calls rather than mock outputs
-- structured trajectories rather than opaque runs
-- benchmark summaries rather than anecdotal examples
-- observable failures rather than silent misclassification
+```text
+task -> selector -> repo search / file selection -> tool execution -> optional verification -> metrics
+```
 
-## Snapshot
+## Why this project is useful
 
-On fixed templates, the rule-based selector is fully stable.  
-On harder natural-language variants, performance improves from **15%** with `rule_v1_harder` to **100%** with `llm_v3_create_fixed_harder` after prompt refinement, argument cleaning, create-task fallback handling, and minimal retry / reflection support.
+This repository is designed to be:
 
-Detailed benchmark design, per-version results, error analysis, and iteration notes are in [`docs/experiments.md`](docs/experiments.md).
+- executable
+- benchmarkable
+- comparable
+- easy to explain in an internship interview
 
-## Repository Layout
+Instead of only showing a demo, it includes:
+
+- structured execution flow
+- benchmark runner
+- metrics summary
+- error summary
+- saved outputs
+
+## Repository layout
 
 ```text
 tooluse-coding-agent/
-├── README.md
-├── hello.py
-├── src/
-│   ├── main.py
-│   ├── config.py
-│   ├── logger_utils.py
-│   ├── agent_runner.py
-│   ├── selector.py
-│   ├── llm_selector.py
-│   ├── task_parser.py
-│   ├── trajectory.py
-│   ├── benchmark_runner.py
-│   ├── benchmark_setup.py
-│   ├── error_analyzer.py
-│   ├── metrics.py
-│   ├── retry_manager.py
-│   └── tools/
-│       ├── __init__.py
-│       ├── repo_search.py
-│       ├── file_reader.py
-│       ├── file_editor.py
-│       └── test_runner.py
-├── data/
-│   └── benchmark/
-│       ├── tasks.json
-│       └── tasks_harder.json
-├── docs/
-│   └── experiments.md
-├── logs/
-└── outputs/
-    └── benchmarks/
+├─ data/
+│  └─ benchmark/
+│     ├─ tasks.json
+│     ├─ tasks_harder.json
+│     └─ tasks_holdout.json
+├─ docs/
+│  └─ experiments.md
+├─ logs/
+├─ outputs/
+│  └─ benchmarks/
+├─ src/
+│  ├─ agent_runner.py
+│  ├─ benchmark_runner.py
+│  ├─ config.py
+│  ├─ error_analyzer.py
+│  ├─ llm_selector.py
+│  ├─ logger_utils.py
+│  ├─ metrics.py
+│  ├─ retry_manager.py
+│  ├─ selector.py
+│  ├─ task_parser.py
+│  ├─ trajectory.py
+│  └─ tools/
+│     ├─ file_editor.py
+│     ├─ file_reader.py
+│     ├─ path_utils.py
+│     ├─ repo_search.py
+│     └─ test_runner.py
+├─ tests/
+│  ├─ test_task_parser.py
+│  └─ test_path_utils.py
+├─ requirements.txt
+└─ README.md
 ```
 
-## Main files to look at first
+## Quick start
 
-- **`src/selector.py`**: deterministic rule-based task parsing baseline
-- **`src/llm_selector.py`**: natural-language to structured decision JSON
-- **`src/agent_runner.py`**: end-to-end execution pipeline
-- **`src/trajectory.py`**: step-level logging of tool calls
-- **`src/benchmark_runner.py`**: batch evaluation entrypoint
-- **`src/error_analyzer.py`**: failed-step attribution and summary
-- **`src/metrics.py`**: benchmark-level metrics aggregation
-- **`src/retry_manager.py`**: minimal retry / reflection handling
-
----
-
-## Quick Start
-
-### 1. Install dependencies
+**1. Install dependencies**
 
 ```bash
-pip install -U pip setuptools wheel
-pip install litellm python-dotenv pyyaml rich
+pip install -r requirements.txt
 ```
 
-### 2. Configure the LLM selector
+**2. Configure environment**
 
-If you want to run the LLM-based selector, create a `.env` file in the root directory:
+If you want to run the LLM selector, create a `.env` file under the project root.
+Example:
 
 ```env
-DASHSCOPE_API_KEY="your_key_here"
-LLM_MODEL="openai/qwen-plus"
-LLM_API_BASE="[https://dashscope.aliyuncs.com/compatible-mode/v1](https://dashscope.aliyuncs.com/compatible-mode/v1)"
+LLM_MODEL=openai/qwen-plus
+LLM_API_BASE=[https://dashscope.aliyuncs.com/compatible-mode/v1](https://dashscope.aliyuncs.com/compatible-mode/v1)
+DASHSCOPE_API_KEY=your_api_key_here
 ```
 
-### 3. Reset the benchmark workspace
+*If you only want to run the rule-based selector, this is not required.*
 
-Because `create` and `edit` tasks are stateful, reset the environment before each benchmark run:
+**3. Run benchmark**
 
-```bash
-python src/benchmark_setup.py
-```
-
-### 4. Debug a single task
-
-```bash
-python src/main.py
-```
-
-*Typical examples you can test:*
-- `读取 hello.py`
-- `创建 notes_llm.txt`
-- `在 notes_llm.txt 里追加 hello llm`
-- `把 hello.py 里的 hello error 改成 hello benchmark`
-
-### 5. Run the batch benchmark
+Run the default benchmark:
 
 ```bash
 python src/benchmark_runner.py
 ```
-**Configuration:**
-Before running, set these variables inside `src/benchmark_runner.py`:
-- `selector_mode = "rule"` or `selector_mode = "llm"`
-- benchmark file: `data/benchmark/tasks.json` or `data/benchmark/tasks_harder.json`
 
-**Recommended execution order:**
-1. Reset environment
-2. Run rule benchmark
-3. Reset again
-4. Run llm benchmark
+Run LLM selector on holdout:
 
-### 6. Inspect outputs
+```bash
+python src/benchmark_runner.py \
+  --selector-mode llm \
+  --task-file data/benchmark/tasks_holdout.json \
+  --run-name llm_holdout
+```
 
-Generated artifacts are written to:
-- `logs/`
-- `outputs/benchmarks/`
+Run rule selector on holdout:
 
-Common output files include summary JSON files such as `rule_v1_summary.json` and `rule_v1_harder_summary.json`.
+```bash
+python src/benchmark_runner.py \
+  --selector-mode rule \
+  --task-file data/benchmark/tasks_holdout.json \
+  --run-name rule_holdout
+```
 
----
-## Reading Guide
-- Read **this file (`README.md`)** for what the project is, how it is organized, and how to run it.
-- Read **[`docs/experiments.md`](docs/experiments.md)** for benchmark setup, version-by-version results, failure patterns, retry/reflection notes, and conclusions.
+**4. Run tests**
+
+```bash
+pytest -q
+```
+
+## Benchmark sets
+
+- **`tasks.json`**: Template-style benchmark used to verify basic pipeline stability.
+- **`tasks_harder.json`**: More natural-language-like benchmark used to measure selector robustness.
+- **`tasks_holdout.json`**: Holdout benchmark used as the most important summary result.
+
+## Results
+
+Use holdout as the main result for reporting.
+
+**Current snapshot**
+
+- Holdout benchmark (rule): `TODO`
+- Holdout benchmark (llm): `TODO`
+
+You can fill the numbers after running:
+
+```bash
+python src/benchmark_runner.py --selector-mode rule --task-file data/benchmark/tasks_holdout.json --run-name rule_holdout
+python src/benchmark_runner.py --selector-mode llm --task-file data/benchmark/tasks_holdout.json --run-name llm_holdout
+```
+
+## Notes on interpretation
+
+This project is still a prototype. That means:
+
+- the task space is intentionally narrow
+- benchmark scale is small
+- retry / reflection is lightweight
+- verification is minimal compared with full software engineering workflows
+- repo search is designed for small repositories, not production-scale systems
+
+So this repository should be interpreted as:
+
+- a compact tool-use agent prototype
+- a selector comparison benchmark
+- a portfolio project for applied AI / agent internships
+
+*not as:*
+- a production-ready autonomous engineer
+- a full-scale code agent platform
+
+## Next improvements
+
+High-value next steps:
+
+- strengthen verifier abstraction
+- improve parser coverage
+- improve repo search ranking
+- add CI
+- report holdout results more prominently

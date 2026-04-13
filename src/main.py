@@ -6,20 +6,19 @@ from agent_runner import run_minimal_agent
 def main():
     repo_root = PROJECT_ROOT
 
-    task = "把 hello.py 里的 hello final 改成 hello llm"
-    # task = "读取 hello.py"
-    # task = "创建 notes_llm.txt"
-    # task = "在 notes_llm.txt 里追加 hello llm\n"
+    # 单任务调试入口
+    task = "把 hello.py 里的 hello error 改成 hello benchmark"
+    selector_mode = "llm"   # "rule" or "llm"
 
     result = run_minimal_agent(
         task=task,
         repo_root=repo_root,
-        selector_mode="llm",
+        selector_mode=selector_mode,
     )
 
     log_path = save_log(LOG_DIR, result)
 
-    print("LLM selector 单任务调试完成")
+    print("单任务调试完成")
     print(f"任务: {task}")
     print(f"final_status: {result.get('final_status')}")
     print(f"selector_mode: {result.get('selector_mode')}")
