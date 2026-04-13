@@ -30,7 +30,7 @@
     "average_step_count": 4.4,
     "average_llm_call_count": 1.0,
     "average_retry_count": 0.0,
-    "average_latency_ms": 1181.4051
+    "average_latency_ms": 1282.1857
   },
   "error_summary": {
     "failed_count": 0,
@@ -189,7 +189,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1444.6661,
+      "latency_ms": 1683.0087,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 1,
@@ -199,7 +199,7 @@
         "step_count": 4,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1444.6661
+        "latency_ms": 1683.0087
       }
     },
     {
@@ -302,7 +302,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1191.1296,
+      "latency_ms": 1950.0466,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 2,
@@ -312,7 +312,7 @@
         "step_count": 4,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1191.1296
+        "latency_ms": 1950.0466
       }
     },
     {
@@ -415,7 +415,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 999.4705,
+      "latency_ms": 1911.2836,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 3,
@@ -425,7 +425,7 @@
         "step_count": 4,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 999.4705
+        "latency_ms": 1911.2836
       }
     },
     {
@@ -528,7 +528,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 981.0839,
+      "latency_ms": 1271.7382,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 4,
@@ -538,7 +538,7 @@
         "step_count": 4,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 981.0839
+        "latency_ms": 1271.7382
       }
     },
     {
@@ -587,7 +587,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1039.0142,
+      "latency_ms": 993.1685,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 5,
@@ -597,7 +597,7 @@
         "step_count": 2,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1039.0142
+        "latency_ms": 993.1685
       }
     },
     {
@@ -646,7 +646,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 976.4556,
+      "latency_ms": 943.2396,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 6,
@@ -656,7 +656,7 @@
         "step_count": 2,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 976.4556
+        "latency_ms": 943.2396
       }
     },
     {
@@ -705,7 +705,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1016.0927,
+      "latency_ms": 1131.1436,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 7,
@@ -715,7 +715,7 @@
         "step_count": 2,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1016.0927
+        "latency_ms": 1131.1436
       }
     },
     {
@@ -853,7 +853,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1221.8165,
+      "latency_ms": 1156.4279,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 8,
@@ -863,7 +863,7 @@
         "step_count": 5,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1221.8165
+        "latency_ms": 1156.4279
       }
     },
     {
@@ -1001,7 +1001,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1120.3925,
+      "latency_ms": 1259.0904,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 9,
@@ -1011,7 +1011,7 @@
         "step_count": 5,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1120.3925
+        "latency_ms": 1259.0904
       }
     },
     {
@@ -1149,7 +1149,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1120.7218,
+      "latency_ms": 1244.2863,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 10,
@@ -1159,7 +1159,7 @@
         "step_count": 5,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1120.7218
+        "latency_ms": 1244.2863
       }
     },
     {
@@ -1297,7 +1297,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1134.3732,
+      "latency_ms": 1155.9177,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 11,
@@ -1307,7 +1307,7 @@
         "step_count": 5,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1134.3732
+        "latency_ms": 1155.9177
       }
     },
     {
@@ -1445,7 +1445,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1141.1409,
+      "latency_ms": 1169.7475,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 12,
@@ -1455,7 +1455,7 @@
         "step_count": 5,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1141.1409
+        "latency_ms": 1169.7475
       }
     },
     {
@@ -1593,7 +1593,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1419.0119,
+      "latency_ms": 1192.7255,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 13,
@@ -1603,7 +1603,7 @@
         "step_count": 5,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1419.0119
+        "latency_ms": 1192.7255
       }
     },
     {
@@ -1792,7 +1792,7 @@
       },
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1448.5027,
+      "latency_ms": 1440.3624,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 14,
@@ -1802,7 +1802,7 @@
         "step_count": 6,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1448.5027
+        "latency_ms": 1440.3624
       }
     },
     {
@@ -1991,7 +1991,7 @@
       },
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1597.2217,
+      "latency_ms": 1327.7081,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 15,
@@ -2001,7 +2001,7 @@
         "step_count": 6,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1597.2217
+        "latency_ms": 1327.7081
       }
     },
     {
@@ -2190,7 +2190,7 @@
       },
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1378.4392,
+      "latency_ms": 1346.4247,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 16,
@@ -2200,7 +2200,7 @@
         "step_count": 6,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1378.4392
+        "latency_ms": 1346.4247
       }
     },
     {
@@ -2389,7 +2389,7 @@
       },
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1406.9203,
+      "latency_ms": 1402.3607,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 17,
@@ -2399,7 +2399,7 @@
         "step_count": 6,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1406.9203
+        "latency_ms": 1402.3607
       }
     },
     {
@@ -2520,7 +2520,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 974.8447,
+      "latency_ms": 1107.4629,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 18,
@@ -2530,7 +2530,7 @@
         "step_count": 4,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 974.8447
+        "latency_ms": 1107.4629
       }
     },
     {
@@ -2651,7 +2651,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 997.262,
+      "latency_ms": 996.0699,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 19,
@@ -2661,7 +2661,7 @@
         "step_count": 4,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 997.262
+        "latency_ms": 996.0699
       }
     },
     {
@@ -2814,7 +2814,7 @@
       "test_result": null,
       "status": "success",
       "failure_reason": null,
-      "latency_ms": 1019.5427,
+      "latency_ms": 961.5003,
       "retry_count": 0,
       "reflection": null,
       "benchmark_index": 20,
@@ -2824,7 +2824,7 @@
         "step_count": 4,
         "llm_call_count": 1,
         "retry_count": 0,
-        "latency_ms": 1019.5427
+        "latency_ms": 961.5003
       }
     }
   ]

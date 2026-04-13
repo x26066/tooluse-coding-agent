@@ -8,6 +8,9 @@ TEMP_FILES = [
     "notes_e.txt",
     "notes_f.txt",
     "notes_llm.txt",
+    "notes_x.txt",
+    "notes_y.txt",
+    "notes_z.txt",
 ]
 
 def reset_temp_files():

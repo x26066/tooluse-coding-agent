@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Dict
 
+from tools.path_utils import safe_resolve_path
+
 
 def replace_in_file(
     repo_root: Path,
@@ -8,7 +10,13 @@ def replace_in_file(
     old_text: str,
     new_text: str,
 ) -> Dict:
-    file_path = repo_root / relative_path
+    try:
+        file_path = safe_resolve_path(repo_root, relative_path)
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": f"路径校验失败: {e}",
+        }
 
     if not file_path.exists():
         return {
@@ -58,7 +66,13 @@ def create_file(
     relative_path: str,
     initial_content: str = "",
 ) -> Dict:
-    file_path = repo_root / relative_path
+    try:
+        file_path = safe_resolve_path(repo_root, relative_path)
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": f"路径校验失败: {e}",
+        }
 
     if file_path.exists():
         return {
@@ -87,7 +101,13 @@ def append_to_file(
     relative_path: str,
     content: str,
 ) -> Dict:
-    file_path = repo_root / relative_path
+    try:
+        file_path = safe_resolve_path(repo_root, relative_path)
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": f"路径校验失败: {e}",
+        }
 
     if not file_path.exists():
         return {

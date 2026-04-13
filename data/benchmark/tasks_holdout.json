@@ -1,0 +1,86 @@
+[
+  {
+    "task": "打开 hello.py 看看里面现在是什么内容",
+    "category": "read"
+  },
+  {
+    "task": "帮我读取 notes_x.txt",
+    "category": "read"
+  },
+  {
+    "task": "看看 notes_y.txt 里写了什么",
+    "category": "read"
+  },
+  {
+    "task": "请查看 notes_z.txt 的内容",
+    "category": "read"
+  },
+
+  {
+    "task": "帮我建一个 notes_x.txt",
+    "category": "create"
+  },
+  {
+    "task": "请创建 notes_y.txt",
+    "category": "create"
+  },
+  {
+    "task": "新建 notes_z.txt 这个文件",
+    "category": "create"
+  },
+
+  {
+    "task": "往 notes_x.txt 里面加一句 first line",
+    "category": "append"
+  },
+  {
+    "task": "给 notes_x.txt 再补一句 second line",
+    "category": "append"
+  },
+  {
+    "task": "把 sample text 追加到 notes_y.txt",
+    "category": "append"
+  },
+  {
+    "task": "请在 notes_y.txt 中加上 extra content",
+    "category": "append"
+  },
+  {
+    "task": "把 holdout line 也写进 notes_z.txt",
+    "category": "append"
+  },
+  {
+    "task": "往 notes_z.txt 里补充 final line",
+    "category": "append"
+  },
+
+  {
+    "task": "把 hello.py 里的 hello error 改成 hello holdout",
+    "category": "edit"
+  },
+  {
+    "task": "请把 hello.py 中的 hello holdout 替换成 hello evaluation",
+    "category": "edit"
+  },
+  {
+    "task": "把 hello.py 里面的 hello evaluation 改成 hello finaltest",
+    "category": "edit"
+  },
+  {
+    "task": "请把 hello.py 中 hello finaltest 换成 hello stable",
+    "category": "edit"
+  },
+
+  {
+    "task": "读取 notes_x.txt",
+    "category": "read"
+  },
+  {
+    "task": "帮我看看 notes_y.txt 现在内容是什么",
+    "category": "read"
+  },
+  {
+    "task": "打开 hello.py 看一下现在打印什么",
+    "category": "read"
+  }
+]

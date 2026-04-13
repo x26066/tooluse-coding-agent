@@ -190,85 +190,71 @@ def build_selector_messages(task: str) -> list[dict]:
         {"role": "system", "content": system_prompt},
 
         # read few-shot
-        {"role": "user", "content": "任务：读取 hello.py"},
+        {"role": "user", "content": "任务：帮我看看 sample_code.py 现在写了什么"},
         {
             "role": "assistant",
             "content": json.dumps(
                 {
                     "ok": True,
                     "action_type": "read",
-                    "target_file": "hello.py",
+                    "target_file": "sample_code.py",
                     "need_search": True,
                 },
                 ensure_ascii=False,
             ),
         },
 
-        {"role": "user", "content": "任务：帮我看看 hello.py 现在写了什么"},
+        {"role": "user", "content": "任务：打开 demo.txt 给我读一下"},
         {
             "role": "assistant",
             "content": json.dumps(
                 {
                     "ok": True,
                     "action_type": "read",
-                    "target_file": "hello.py",
+                    "target_file": "demo.txt",
                     "need_search": True,
                 },
                 ensure_ascii=False,
             ),
         },
 
-        # create few-shot (强化)
-        {"role": "user", "content": "任务：创建 notes_a.txt"},
+        # create few-shot
+        {"role": "user", "content": "任务：请新建一个 sample_a.txt"},
         {
             "role": "assistant",
             "content": json.dumps(
                 {
                     "ok": True,
                     "action_type": "create",
-                    "target_file": "notes_a.txt",
+                    "target_file": "sample_a.txt",
                     "need_search": False,
                 },
                 ensure_ascii=False,
             ),
         },
 
-        {"role": "user", "content": "任务：请新建一个 notes_d.txt"},
+        {"role": "user", "content": "任务：帮我创建 sample_b.txt 这个文件"},
         {
             "role": "assistant",
             "content": json.dumps(
                 {
                     "ok": True,
                     "action_type": "create",
-                    "target_file": "notes_d.txt",
+                    "target_file": "sample_b.txt",
                     "need_search": False,
                 },
                 ensure_ascii=False,
             ),
         },
 
-        {"role": "user", "content": "任务：帮我创建 notes_e.txt 这个文件"},
+        {"role": "user", "content": "任务：建个 sample_c.txt"},
         {
             "role": "assistant",
             "content": json.dumps(
                 {
                     "ok": True,
                     "action_type": "create",
-                    "target_file": "notes_e.txt",
-                    "need_search": False,
-                },
-                ensure_ascii=False,
-            ),
-        },
-
-        {"role": "user", "content": "任务：建个 notes_f.txt"},
-        {
-            "role": "assistant",
-            "content": json.dumps(
-                {
-                    "ok": True,
-                    "action_type": "create",
-                    "target_file": "notes_f.txt",
+                    "target_file": "sample_c.txt",
                     "need_search": False,
                 },
                 ensure_ascii=False,
@@ -276,64 +262,64 @@ def build_selector_messages(task: str) -> list[dict]:
         },
 
         # append few-shot
-        {"role": "user", "content": "任务：在 notes_a.txt 里追加 alpha"},
+        {"role": "user", "content": "任务：把 delta 追加到 sample_b.txt"},
         {
             "role": "assistant",
             "content": json.dumps(
                 {
                     "ok": True,
                     "action_type": "append",
-                    "target_file": "notes_a.txt",
+                    "target_file": "sample_b.txt",
                     "need_search": True,
-                    "content": "alpha",
+                    "content": "delta",
                 },
                 ensure_ascii=False,
             ),
         },
 
-        {"role": "user", "content": "任务：把 gamma 追加到 notes_e.txt"},
+        {"role": "user", "content": "任务：请在 sample_c.txt 里加上 extra line"},
         {
             "role": "assistant",
             "content": json.dumps(
                 {
                     "ok": True,
                     "action_type": "append",
-                    "target_file": "notes_e.txt",
+                    "target_file": "sample_c.txt",
                     "need_search": True,
-                    "content": "gamma",
+                    "content": "extra line",
                 },
                 ensure_ascii=False,
             ),
         },
 
         # edit few-shot
-        {"role": "user", "content": "任务：把 hello.py 里的 hello benchmark 改成 hello agent"},
+        {"role": "user", "content": "任务：请把 sample_code.py 中的 old value 替换成 new value"},
         {
             "role": "assistant",
             "content": json.dumps(
                 {
                     "ok": True,
                     "action_type": "edit",
-                    "target_file": "hello.py",
+                    "target_file": "sample_code.py",
                     "need_search": True,
-                    "old_text": "hello benchmark",
-                    "new_text": "hello agent",
+                    "old_text": "old value",
+                    "new_text": "new value",
                 },
                 ensure_ascii=False,
             ),
         },
 
-        {"role": "user", "content": "任务：请把 hello.py 中的 hello harder 替换成 hello benchmark"},
+        {"role": "user", "content": "任务：把 demo.py 里的 alpha 改成 beta"},
         {
             "role": "assistant",
             "content": json.dumps(
                 {
                     "ok": True,
                     "action_type": "edit",
-                    "target_file": "hello.py",
+                    "target_file": "demo.py",
                     "need_search": True,
-                    "old_text": "hello harder",
-                    "new_text": "hello benchmark",
+                    "old_text": "alpha",
+                    "new_text": "beta",
                 },
                 ensure_ascii=False,
             ),

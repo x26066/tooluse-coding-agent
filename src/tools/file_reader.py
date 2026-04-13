@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Dict, Optional
 
+from tools.path_utils import safe_resolve_path
+
 
 def read_file(
     repo_root: Path,
@@ -9,12 +11,13 @@ def read_file(
     end_line: Optional[int] = None,
     max_chars: int = 4000,
 ) -> Dict:
-    """
-    读取仓库中的文件。
-    relative_path: 相对 repo_root 的路径
-    start_line/end_line: 可选，按行截取
-    """
-    file_path = repo_root / relative_path
+    try:
+        file_path = safe_resolve_path(repo_root, relative_path)
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": f"路径校验失败: {e}",
+        }
 
     if not file_path.exists():
         return {

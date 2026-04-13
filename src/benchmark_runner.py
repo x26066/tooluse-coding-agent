@@ -129,8 +129,8 @@ def run_benchmark(
 
 def main():
     selector_mode = "llm"  # 改成 "rule" 或 "llm"
-    run_name = "llm_v3_create_fixed_harder"  # 按当前实验名改
-    task_file = PROJECT_ROOT / "data" / "benchmark" / "tasks_harder.json"
+    run_name = "llm_v3_create_fixed_holdout"  # 按当前实验名改
+    task_file = PROJECT_ROOT / "data" / "benchmark" / "tasks_holdout.json"
 
     summary = run_benchmark(task_file, selector_mode=selector_mode)
 
